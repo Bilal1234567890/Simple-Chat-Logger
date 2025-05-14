@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Login</title>
+    <link rel="stylesheet" href="login.css">
+    <style>
+      #notification {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        color: #1976d2;
+        font-weight: bold;
+        font-size: 1.1em;
+        gap: 8px;
+      }
+      #messageCount {
+        background: #1976d2;
+        color: #fff;
+        border-radius: 12px;
+        padding: 2px 8px;
+        font-size: 0.95em;
+        margin-left: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <div id="notification" style="display:none;">
+        <span id="newMsgText">New message!</span>
+      </div>
+      <div style="margin-bottom:10px;">
+        Total messages: <span id="messageCount"><%= messageCount %></span>
+      </div>
+      <% if (typeof error !== 'undefined') { %>
+        <div class="error-message"><%= error %></div>
+      <% } %>
+      <h2>Login</h2>
+      <form id="loginForm" method="POST" action="/login" style="display:flex;flex-direction:column;gap:10px;width:300px;">
+        <label>
+          SIMPLE CHAT LOGGER:
+          <input type="text" name="organization" value="BACKEND DEVELOPERS" readonly />
+        </label>
+        <label>
+          USERNAME:
+          <input type="text" name="username" required />
+        </label>
+        <button type="submit">Login</button>
+      </form>
+    </div>
+    <script>
+      // Fetch and display message count and notification for new messages
+      let lastMessageCount = 0;
+      let firstLoad = true;
+      async function checkMessages() {
+        try {
+          const res = await fetch('/messages');
+          const messages = await res.json();
+          const count = messages.length;
+          document.getElementById('messageCount').textContent = count;
+          if (!firstLoad && count > lastMessageCount) {
+            document.getElementById('notification').style.display = 'flex';
+            document.getElementById('newMsgText').textContent = `New message!`;
+          }
+          lastMessageCount = count;
+          firstLoad = false;
+        } catch (e) {
+          // ignore errors
+        }
+      }
+      checkMessages();
+      setInterval(checkMessages, 2000);
+    </script>
+    <script src="app.js"></script>
+  </body>
+</html>
